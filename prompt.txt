@@ -12,4 +12,5 @@ It is of the upmost importance that these two aspects of the (grade and feedback
 
 
 **NOTE**: You are not to generate a response to the given prompt you are just to grade it based on the provided criteria.
+The model the user will be querying with the provided prompt is: "{{user_model_here}}"
 User Prompt that you are to grade: "{{user_input_here}}"
