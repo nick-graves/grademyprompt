@@ -1,0 +1,9 @@
+The user submitted this prompt:
+
+"{{user_input_here}}"
+
+The model gave this feedback:
+
+"{{feedback}}"
+
+Based on this, ask 3–5 clarifying questions that would help improve the user's prompt. Only return a numbered list of the questions.

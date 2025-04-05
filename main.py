@@ -5,16 +5,18 @@ import json
 from datetime import datetime
 
 RESULTS_FILE = "results.json"
+PROMPT_DIR = Path("prompts")
 
-def load_prompt_template(template_path="prompt.txt") -> str:
-    return Path(template_path).read_text()
 
-def inject_user_data(template: str, user_prompt: str, user_model: str) -> str:
-    return (
-        template
-        .replace("{{user_input_here}}", user_prompt)
-        .replace("{{user_model_here}}", user_model)
-    )
+def load_prompt_template(filename: str) -> str:
+    return (PROMPT_DIR / filename).read_text()
+
+
+def fill_template(template: str, replacements: dict) -> str:
+    for key, value in replacements.items():
+        template = template.replace(f"{{{{{key}}}}}", value)
+    return template
+
 
 def extract_score_and_feedback(response: str):
     score_match = re.search(r"GRADE:\s*(\d{1,3})", response, re.IGNORECASE)
@@ -24,6 +26,7 @@ def extract_score_and_feedback(response: str):
     feedback = feedback_match.group(1).strip() if feedback_match else "No feedback found."
 
     return score, feedback
+
 
 def save_to_json(user_prompt, score, feedback, path=RESULTS_FILE):
     entry = {
@@ -43,17 +46,35 @@ def save_to_json(user_prompt, score, feedback, path=RESULTS_FILE):
         with open(path, "w", encoding="utf-8") as f:
             json.dump([entry], f, indent=2)
 
-def main():
 
-    user_model = input("Enter the model that you will be querying with this prompt: \n> ")
+
+def extract_refined_prompt(response: str) -> str:
+    # Strip out the <think> block if it exists
+    if "</think>" in response:
+        response = response.split("</think>", 1)[1]
+
+    # Optionally remove "**Prompt:**" or similar labels
+    response = re.sub(r"\*\*Prompt:\*\*", "", response, flags=re.IGNORECASE)
+
+    # Clean up excess whitespace
+    return response.strip()
+
+
+
+def main():
+    user_model = input("Enter the model that you will be querying with this prompt:\n> ")
     user_prompt = input("Enter the AI prompt you'd like to evaluate:\n> ")
 
-    template = load_prompt_template()
-    full_prompt = inject_user_data(template, user_prompt, user_model)
+    # Evaluate prompt
+    eval_template = load_prompt_template("evaluate_prompt.txt")
+    eval_filled = fill_template(eval_template, {
+        "user_input_here": user_prompt,
+        "user_model_here": user_model
+    })
 
     print("\n---------------------------------------------------")
     print("Evaluating prompt...\n")
-    response = query_ollama(full_prompt)
+    response = query_ollama(eval_filled)
     print(response)
 
     score, feedback = extract_score_and_feedback(response)
@@ -68,50 +89,51 @@ def main():
         print("Exiting. Have a great day!")
         return
 
-    print("\nGenerating follow-up questions to help improve your prompt...\n")
-    followup_prompt = f"""
-You are a prompt engineering assistant. The user has provided the following prompt:
+    # Generate follow-up questions
+    question_template = load_prompt_template("generate_questions.txt")
+    question_filled = fill_template(question_template, {
+        "user_input_here": user_prompt,
+        "feedback": feedback
+    })
 
-"{user_prompt}"
-
-The model returned this feedback:
-
-"{feedback}"
-
-Please generate 3-5 specific questions to ask the user that would help refine and improve the prompt. These questions should gather missing context, clarify the task, and help make the prompt more specific and aligned with the model's strengths.
-
-Respond with only the list of questions, numbered.
-"""
-    questions_output = query_ollama(followup_prompt)
+    print("\n---------------------------------------------------")
+    print("\nGenerating follow-up questions...\n")
+    questions_output = query_ollama(question_filled)
     print(questions_output)
 
-    # Step 2: Collect user's answers
-    questions = [line for line in questions_output.strip().split("\n") if line.strip()]
-    answers = []
+    questions = [
+        line.strip()
+        for line in questions_output.strip().split("\n")
+        if re.match(r"^\s*\d+[\.\)]", line.strip())
+]
+
+    qa_pairs = []
+
+    print("\nPlease answer the following questions to help improve your prompt:\n")
     for q in questions:
-        answer = input(f"{q.strip()}\n> ")
-        answers.append(answer)
+        print(q)
+        answer = input("> ")
+        qa_pairs.append({
+            "question": q,
+            "answer": answer.strip()
+        })
 
-    # Step 3: Ask model to rewrite the prompt
-    print("\nRefining your prompt with the help of the model...\n")
-    refinement_prompt = f"""
-    You are a prompt engineering assistant. The user submitted the following original prompt:
+    qa_block = "\n".join(f"- {pair['question']} {pair['answer']}" for pair in qa_pairs)
 
-    "{user_prompt}"
+    refine_template = load_prompt_template("refine_prompt.txt")
+    refine_filled = fill_template(refine_template, {
+        "user_input_here": user_prompt,
+        "feedback": feedback,
+        "user_model_here": user_model,
+        "questions_and_answers": qa_block
+    })
 
-    The model gave this feedback:
-
-    "{feedback}"
-
-    The user has answered follow-up questions with the following responses:
-    {chr(10).join(f"- {a}" for a in answers)}
-
-    Please generate a new, polished prompt that incorporates these details and is optimized to get the best result from the model "{user_model}". Return only the new prompt, no commentary.
-    """
-    polished_prompt = query_ollama(refinement_prompt)
-    print("\n✅ Refined Prompt:\n")
-    print(polished_prompt.strip())
-
+    print("\n---------------------------------------------------")
+    print("\nCreating a refined prompt...\n")
+    refined_output = query_ollama(refine_filled)
+    print("\n---------------------------------------------------")
+    print("\nRefined Prompt:\n")
+    print(extract_refined_prompt(refined_output))
 
 
 if __name__ == "__main__":

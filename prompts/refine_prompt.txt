@@ -1,0 +1,13 @@
+The user submitted this original prompt:
+
+"{{user_input_here}}"
+
+The model provided the following feedback:
+
+"{{feedback}}"
+
+The user answered follow-up questions with:
+
+{{questions_and_answers}}
+
+Please rewrite the original prompt using these answers to make it more detailed, specific, and better aligned with the model "{{user_model_here}}". Return only the improved prompt.
