@@ -1,0 +1,200 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background-color: #f8f9fa;
+    color: #343a40;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+    margin: 0 auto;
+}
+
+header {
+    background-color: #fff;
+    color: #343a40;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e9ecef;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.logo {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #007bff;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin-left: 20px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #495057;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+nav ul li a:hover {
+    color: #007bff;
+}
+
+main.container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin: 20px auto;
+    width: 80%;
+    max-width: 960px;
+    flex: 1;
+}
+
+#input-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    color: #495057;
+}
+
+textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 0;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 16px;
+    font-family: inherit;
+    min-height: 200px;
+    resize: none;
+}
+
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 16px;
+    font-family: inherit;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    align-self: flex-start;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#results-section {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid #e9ecef;
+}
+
+.hidden {
+    display: none;
+}
+
+#score-breakdown h3, #graph-section h3, #overall-feedback h3 {
+    color: #343a40;
+    margin-bottom: 15px;
+}
+
+.scores-list {
+    list-style: none;
+    padding: 0;
+}
+
+.scores-list li {
+    margin-bottom: 10px;
+    color: #495057;
+    font-weight: 500;
+}
+
+#graph-section {
+    display: flex; /* Keep flexbox for horizontal layout */
+    flex-wrap: nowrap; /* Prevent wrapping to ensure all in one row */
+    gap: 10px; /* Reduce the gap between graphs */
+    margin-top: 20px; /* Add some top margin below the title */
+}
+
+.graph-container {
+    flex: 1; /* Distribute space equally */
+    min-width: 100px; /* Adjust minimum width to allow more to fit */
+    height: 80px; /* Reduce the height of the graphs */
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8em; /* Adjust font size inside the graph */
+    color: white; /* Make score text white for visibility on blue */
+    background-color: #007bff; /* Set a background color for the bar */
+    position: relative; /* For positioning the label */
+    overflow: hidden; /* Prevent content from overflowing if width is small */
+}
+
+.graph-container::after {
+    content: attr(data-label); /* Get the data-label attribute */
+    position: absolute;
+    bottom: -20px; /* Position label below the bar */
+    left: 50%;
+    transform: translateX(-50%);
+    color: #555;
+    font-size: 0.9em;
+}
+
+#graph-section > h3 {
+    flex-basis: 100%; /* Make the "Score Visualization" title take full width */
+    margin-bottom: 10px;
+    text-align: left; /* Align title to the left */
+}
+
+#graph-section > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#graph-section > div > .graph-container {
+    margin-bottom: 5px; /* Space between graph and label */
+}
+
+#graph-section > div > span {
+    font-size: 0.9em;
+    color: #555;
+}

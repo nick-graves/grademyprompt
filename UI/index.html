@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Grader</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page-container">
+        <header>
+            <div class="logo">Prompt Insights</div>
+            <nav>
+                <ul>
+                    <li><a href="#analyze">Analyze Prompt</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#help">Help</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="container">
+            <section id="input-section">
+                <label for="prompt-input">Original Prompt:</label>
+                <textarea id="prompt-input" placeholder="Enter your prompt here..."></textarea>
+
+                <label for="model-select">Model Used:</label>
+                <select id="model-select">
+                    <option value="" disabled selected>Select a Model</option>
+                    <option value="gpt-3.5">GPT-3.5</option>
+                    <option value="gpt-4">GPT-4</option>
+                    <option value="claude-2">Claude 2</option>
+                </select>
+
+                <button id="grade-button">Grade Prompt</button>
+            </section>
+
+            <section id="results-section" class="hidden">
+                <h2>Analysis Results</h2>
+
+                <div id="overall-feedback">
+                    <h3>Overall Feedback:</h3>
+                    <p id="overall-feedback-text"></p>
+                </div>
+
+                <div id="score-breakdown">
+                    <h3>Score Breakdown (out of 20):</h3>
+                    <ul class="scores-list">
+                        <li><strong>Clarity:</strong> <span id="clarity-score"></span></li>
+                        <li><strong>Specificity:</strong> <span id="specificity-score"></span></li>
+                        <li><strong>Context/Background:</strong> <span id="context-score"></span></li>
+                        <li><strong>Task Definition:</strong> <span id="task-score"></span></li>
+                        <li><strong>Model Alignment:</strong> <span id="alignment-score"></span></li>
+                    </ul>
+                </div>
+
+                <div id="graph-section">
+                    <h3>Score Visualization</h3>
+                    <div>
+                        <div class="graph-container" id="clarity-graph" data-label="Clarity"></div>
+                    </div>
+                    <div>
+                        <div class="graph-container" id="specificity-graph" data-label="Specificity"></div>
+                    </div>
+                    <div>
+                        <div class="graph-container" id="context-graph" data-label="Context"></div>
+                    </div>
+                    <div>
+                        <div class="graph-container" id="task-graph" data-label="Task"></div>
+                    </div>
+                    <div>
+                        <div class="graph-container" id="alignment-graph" data-label="Alignment"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Prompt Insights. All rights reserved.</p>
+            <p><a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
