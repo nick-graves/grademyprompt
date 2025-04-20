@@ -16,13 +16,27 @@ def fill_template(template: str, replacements: dict) -> str:
     return template
 
 def extract_score_and_feedback(response: str):
-    score_match = re.search(r"GRADE:\s*(\d{1,3})", response, re.IGNORECASE)
-    score = int(score_match.group(1)) if score_match else -1
+    def find(label):
+        match = re.search(rf"{label}:\s*(\d+)", response, re.IGNORECASE)
+        return int(match.group(1)) if match else 0
+
+    clarity = find("CLARITY")
+    specificity = find("SPECIFICITY")
+    context = find("CONTEXT")
+    task = find("TASK")
+    alignment = find("ALIGNMENT")
+    total_score = find("GRADE")
 
     feedback_match = re.search(r"FEEDBACK:\s*(.+)", response, re.IGNORECASE | re.DOTALL)
     feedback = feedback_match.group(1).strip() if feedback_match else "No feedback found."
 
-    return score, feedback
+    return total_score, feedback, {
+        "clarity": clarity,
+        "specificity": specificity,
+        "context": context,
+        "task": task,
+        "alignment": alignment
+    }
 
 def save_to_json(user_prompt, score, feedback, path=RESULTS_FILE):
     entry = {
@@ -42,13 +56,13 @@ def save_to_json(user_prompt, score, feedback, path=RESULTS_FILE):
         with open(path, "w", encoding="utf-8") as f:
             json.dump([entry], f, indent=2)
 
-def generate_questions(user_prompt: str, feedback: str, model: str) -> list:
+def generate_questions(user_prompt: str, feedback: str) -> list:
     template = load_prompt_template("generate_questions.txt")
     filled = fill_template(template, {
         "user_input_here": user_prompt,
         "feedback": feedback
     })
-    response = query_ollama(filled, model=model)
+    response = query_ollama(filled)
     return [line.strip() for line in response.strip().split("\n") if re.match(r"^\s*\d+[\.\)]", line.strip())]
 
 def refine_prompt(original_prompt: str, feedback: str, qa_pairs: list, model: str) -> str:
@@ -60,14 +74,17 @@ def refine_prompt(original_prompt: str, feedback: str, qa_pairs: list, model: st
         "user_model_here": model,
         "questions_and_answers": qa_block
     })
-    return query_ollama(filled, model=model).strip()
+    return query_ollama(filled).strip()
 
-def evaluate_prompt(user_prompt: str, model: str = "llama3:8b") -> tuple:
+def evaluate_prompt(user_prompt: str, model: str = "llama3.1:8b") -> tuple:
     template = load_prompt_template("evaluate_prompt.txt")
     filled = fill_template(template, {
         "user_input_here": user_prompt,
         "user_model_here": model
     })
-    response = query_ollama(filled, model=model)
-    score, feedback = extract_score_and_feedback(response)
-    return response, score, feedback
+
+    response = query_ollama(filled)
+
+    score, feedback, breakdown = extract_score_and_feedback(response)
+
+    return response, score, feedback, breakdown

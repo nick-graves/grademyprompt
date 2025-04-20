@@ -9,13 +9,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskScoreSpan = document.getElementById('task-score');
     const alignmentScoreSpan = document.getElementById('alignment-score');
     const overallFeedbackText = document.getElementById('overall-feedback-text');
-    const graphContainers = {
-        clarity: document.getElementById('clarity-graph'),
-        specificity: document.getElementById('specificity-graph'),
-        context: document.getElementById('context-graph'),
-        task: document.getElementById('task-graph'),
-        alignment: document.getElementById('alignment-graph'),
-    };
+    const totalScoreSpan = document.getElementById('total-score');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const loadingMessage = document.getElementById('loading-message');
+
+    const rewriteButton = document.getElementById('rewrite-button');
+    const qaSection = document.getElementById('qa-section');
+    const qaForm = document.getElementById('qa-form');
+    const submitAnswersButton = document.getElementById('submit-answers-button');
+    const refinedPromptOutput = document.getElementById('refined-prompt-output');
+    const refinedPromptSection = document.getElementById('refined-prompt-section');
+
+    let scoreChart = null;
+
+    function showLoading(message = "Loading...") {
+        loadingMessage.textContent = message;
+        loadingSpinner.classList.remove('hidden');
+    }
+
+    function hideLoading() {
+        loadingSpinner.classList.add('hidden');
+    }
 
     gradeButton.addEventListener('click', async () => {
         const prompt = promptInput.value;
@@ -25,6 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Please enter a prompt and select a model.');
             return;
         }
+
+        showLoading("Evaluating prompt...");
 
         try {
             const response = await fetch('http://localhost:5000/api/evaluate', {
@@ -46,41 +62,161 @@ document.addEventListener('DOMContentLoaded', () => {
             contextScoreSpan.textContent = data.breakdown.context;
             taskScoreSpan.textContent = data.breakdown.task;
             alignmentScoreSpan.textContent = data.breakdown.alignment;
+            totalScoreSpan.textContent = data.score;
 
-            renderBarChart(graphContainers.clarity, data.breakdown.clarity, 20, 'Clarity');
-            renderBarChart(graphContainers.specificity, data.breakdown.specificity, 20, 'Specificity');
-            renderBarChart(graphContainers.context, data.breakdown.context, 20, 'Context');
-            renderBarChart(graphContainers.task, data.breakdown.task, 20, 'Task');
-            renderBarChart(graphContainers.alignment, data.breakdown.alignment, 20, 'Alignment');
+            const ctx = document.getElementById('scoreChart').getContext('2d');
+
+            if (scoreChart) {
+                scoreChart.destroy();
+            }
+
+            scoreChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Clarity', 'Specificity', 'Context', 'Task', 'Alignment'],
+                    datasets: [{
+                        label: 'Score (out of 20)',
+                        data: [
+                            data.breakdown.clarity,
+                            data.breakdown.specificity,
+                            data.breakdown.context,
+                            data.breakdown.task,
+                            data.breakdown.alignment
+                        ],
+                        backgroundColor: '#007bff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    animation: {
+                        duration: 700
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 20,
+                            title: {
+                                display: true,
+                                text: 'Score'
+                            },
+                            ticks: {
+                                stepSize: 5
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
         } catch (err) {
             console.error('Failed to fetch:', err);
             alert('Failed to connect to backend. Is it running?');
+        } finally {
+            hideLoading();
         }
     });
 
-    function renderBarChart(container, score, maxScore, label) {
-        container.innerHTML = ''; // Clear previous content
-        const bar = document.createElement('div');
-        bar.style.backgroundColor = '#007bff';
-        bar.style.height = '80%';
-        bar.style.width = `${(score / maxScore) * 100}%`;
-        bar.style.borderRadius = '4px';
-        bar.style.display = 'flex';
-        bar.style.justifyContent = 'center';
-        bar.style.alignItems = 'center';
-        bar.style.color = 'white';
-        bar.textContent = score;
+    rewriteButton.addEventListener('click', async () => {
+        const prompt = promptInput.value;
+        const feedback = overallFeedbackText.textContent;
 
-        const labelElement = document.createElement('div');
-        labelElement.style.position = 'absolute';
-        labelElement.style.bottom = '-20px';
-        labelElement.style.left = '50%';
-        labelElement.style.transform = 'translateX(-50%)';
-        labelElement.style.color = '#555';
-        labelElement.textContent = label;
+        if (!prompt || !feedback) {
+            alert("Prompt and feedback are required to generate clarification questions.");
+            return;
+        }
 
-        container.style.position = 'relative';
-        container.appendChild(bar);
-        container.appendChild(labelElement);
-    }
+        showLoading("Generating clarifying questions...");
+
+        try {
+            const response = await fetch('http://localhost:5000/api/generate-questions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt, feedback })
+            });
+
+            const data = await response.json();
+            if (data.error) {
+                alert(`Error: ${data.error}`);
+                return;
+            }
+
+            const questions = data.questions;
+            console.log("Generated questions:", questions);
+
+            qaForm.innerHTML = '';
+            qaSection.classList.remove('hidden');
+
+            questions.forEach((question, index) => {
+                const item = document.createElement('div');
+                item.classList.add('qa-item');
+
+                const label = document.createElement('label');
+                label.textContent = question;
+                label.setAttribute('for', `answer-${index}`);
+
+                const textarea = document.createElement('textarea');
+                textarea.setAttribute('id', `answer-${index}`);
+                textarea.setAttribute('name', `answer-${index}`);
+
+                item.appendChild(label);
+                item.appendChild(textarea);
+                qaForm.appendChild(item);
+            });
+
+        } catch (err) {
+            console.error('Failed to generate questions:', err);
+            alert('Something went wrong generating questions.');
+        } finally {
+            hideLoading();
+        }
+    });
+
+    submitAnswersButton.addEventListener('click', async () => {
+        const prompt = promptInput.value;
+        const feedback = overallFeedbackText.textContent;
+
+        const answers = [];
+        const formElements = qaForm.elements;
+
+        for (let i = 0; i < formElements.length; i++) {
+            const el = formElements[i];
+            if (el.tagName === 'TEXTAREA') {
+                const question = el.previousSibling.textContent;
+                const answer = el.value;
+                answers.push({ question, answer });
+            }
+        }
+
+        showLoading("Rewriting your prompt...");
+
+        try {
+            const response = await fetch('http://localhost:5000/api/refine-prompt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt,
+                    feedback,
+                    qa_pairs: answers
+                })
+            });
+
+            const data = await response.json();
+            if (data.error) {
+                alert(`Error: ${data.error}`);
+                return;
+            }
+
+            refinedPromptOutput.textContent = data.refined_prompt;
+            refinedPromptSection.classList.remove('hidden');
+        } catch (err) {
+            console.error('Failed to refine prompt:', err);
+            alert('Something went wrong generating the refined prompt.');
+        } finally {
+            hideLoading();
+        }
+    });
 });

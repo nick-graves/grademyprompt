@@ -1,7 +1,7 @@
 from core import evaluate_prompt, save_to_json, generate_questions, refine_prompt
 
 def main():
-    user_model = "llama3:8b"
+    user_model = "llama3.1:8b"
     user_prompt = input("Enter the AI prompt you'd like to evaluate:\n> ")
 
     print("\n---------------------------------------------------")

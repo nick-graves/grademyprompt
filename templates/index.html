@@ -5,8 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt Grader</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
+    <div id="loading-spinner" class="hidden">
+        <div class="spinner"></div>
+        <p id="loading-message">Evaluating prompt...</p>
+    </div>
+
     <div class="page-container">
         <header>
             <div class="logo">Prompt Insights</div>
@@ -43,33 +50,44 @@
                     <p id="overall-feedback-text"></p>
                 </div>
 
-                <div id="score-breakdown">
-                    <h3>Score Breakdown (out of 20):</h3>
-                    <ul class="scores-list">
-                        <li><strong>Clarity:</strong> <span id="clarity-score"></span></li>
-                        <li><strong>Specificity:</strong> <span id="specificity-score"></span></li>
-                        <li><strong>Context/Background:</strong> <span id="context-score"></span></li>
-                        <li><strong>Task Definition:</strong> <span id="task-score"></span></li>
-                        <li><strong>Model Alignment:</strong> <span id="alignment-score"></span></li>
-                    </ul>
+                <!-- Score + Chart Side-by-Side -->
+                <div id="score-section">
+                    <!-- Score Breakdown -->
+                    <div id="score-breakdown">
+                        <h3>Score Breakdown (out of 20):</h3>
+                        <ul class="scores-list">
+                            <li><strong>Clarity:</strong> <span id="clarity-score"></span></li>
+                            <li><strong>Specificity:</strong> <span id="specificity-score"></span></li>
+                            <li><strong>Context/Background:</strong> <span id="context-score"></span></li>
+                            <li><strong>Task Definition:</strong> <span id="task-score"></span></li>
+                            <li><strong>Model Alignment:</strong> <span id="alignment-score"></span></li>
+                        </ul>
+
+                        <div id="total-score-section">
+                            <h3>Total Score:</h3>
+                            <p id="total-score" class="score-highlight"></p>
+                        </div>
+                    </div>
+
+                    <!-- Chart Area -->
+                    <div class="mini-chart-container">
+                        <canvas id="scoreChart" width="300" height="250"></canvas>
+                    </div>
                 </div>
 
-                <div id="graph-section">
-                    <h3>Score Visualization</h3>
-                    <div>
-                        <div class="graph-container" id="clarity-graph" data-label="Clarity"></div>
-                    </div>
-                    <div>
-                        <div class="graph-container" id="specificity-graph" data-label="Specificity"></div>
-                    </div>
-                    <div>
-                        <div class="graph-container" id="context-graph" data-label="Context"></div>
-                    </div>
-                    <div>
-                        <div class="graph-container" id="task-graph" data-label="Task"></div>
-                    </div>
-                    <div>
-                        <div class="graph-container" id="alignment-graph" data-label="Alignment"></div>
+                <div id="rewrite-section">
+                    <button id="rewrite-button">Rewrite this prompt</button>
+                </div>
+
+                <div id="qa-section" class="hidden">
+                    <h3>Help Us Refine Your Prompt</h3>
+                    <p>Please answer the following questions to provide more context:</p>
+                    <form id="qa-form"></form>
+
+                    <button id="submit-answers-button">Generate Refined Prompt</button>
+                    <div id="refined-prompt-section" class="hidden">
+                        <h3>Refined Prompt:</h3>
+                        <pre id="refined-prompt-output"></pre>
                     </div>
                 </div>
             </section>
