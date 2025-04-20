@@ -198,3 +198,23 @@ button:hover {
     font-size: 0.9em;
     color: #555;
 }
+
+footer {
+    background-color: #343a40; /* Dark gray background */
+    color: #f8f9fa; /* Light text */
+    text-align: center;
+    padding: 20px;
+    margin-top: auto;
+    font-size: 0.9em;
+}
+
+footer a {
+    color: #adb5bd; /* Subtle link color */
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+footer a:hover {
+    color: #ffffff; /* Brighter on hover */
+    text-decoration: underline;
+}

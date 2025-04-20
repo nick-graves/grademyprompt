@@ -26,22 +26,36 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Simulate sending data to the backend and receiving results
-        // In a real application, you would use fetch or axios to make an API call to your Node.js backend
-        resultsSection.classList.remove('hidden');
-        overallFeedbackText.textContent = "This is some example overall feedback on your prompt.";
-        clarityScoreSpan.textContent = '15';
-        specificityScoreSpan.textContent = '18';
-        contextScoreSpan.textContent = '12';
-        taskScoreSpan.textContent = '19';
-        alignmentScoreSpan.textContent = '16';
+        try {
+            const response = await fetch('http://localhost:5000/api/evaluate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt, model })
+            });
 
-        // Example of rendering basic bar charts (you'd likely use a library like Chart.js or D3.js for more sophisticated graphs)
-        renderBarChart(graphContainers.clarity, 15, 20, 'Clarity');
-        renderBarChart(graphContainers.specificity, 18, 20, 'Specificity');
-        renderBarChart(graphContainers.context, 12, 20, 'Context');
-        renderBarChart(graphContainers.task, 19, 20, 'Task');
-        renderBarChart(graphContainers.alignment, 16, 20, 'Alignment');
+            const data = await response.json();
+            if (data.error) {
+                alert(`Error: ${data.error}`);
+                return;
+            }
+
+            resultsSection.classList.remove('hidden');
+            overallFeedbackText.textContent = data.feedback;
+            clarityScoreSpan.textContent = data.breakdown.clarity;
+            specificityScoreSpan.textContent = data.breakdown.specificity;
+            contextScoreSpan.textContent = data.breakdown.context;
+            taskScoreSpan.textContent = data.breakdown.task;
+            alignmentScoreSpan.textContent = data.breakdown.alignment;
+
+            renderBarChart(graphContainers.clarity, data.breakdown.clarity, 20, 'Clarity');
+            renderBarChart(graphContainers.specificity, data.breakdown.specificity, 20, 'Specificity');
+            renderBarChart(graphContainers.context, data.breakdown.context, 20, 'Context');
+            renderBarChart(graphContainers.task, data.breakdown.task, 20, 'Task');
+            renderBarChart(graphContainers.alignment, data.breakdown.alignment, 20, 'Alignment');
+        } catch (err) {
+            console.error('Failed to fetch:', err);
+            alert('Failed to connect to backend. Is it running?');
+        }
     });
 
     function renderBarChart(container, score, maxScore, label) {
@@ -65,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         labelElement.style.color = '#555';
         labelElement.textContent = label;
 
-        container.style.position = 'relative'; // For absolute positioning of the label
+        container.style.position = 'relative';
         container.appendChild(bar);
         container.appendChild(labelElement);
     }
