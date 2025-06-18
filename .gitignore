@@ -2,3 +2,4 @@ results.json
 __pycache__/
 enc
 .venv
+/env
