@@ -3,3 +3,4 @@ __pycache__/
 enc
 .venv
 /env
+/llm/unsloth_compiled_cache
