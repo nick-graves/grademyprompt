@@ -118,6 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             hideLoading();
         }
+
+        gradeButton.style.display = 'none';
+
     });
 
     rewriteButton.addEventListener('click', async () => {
@@ -173,6 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             hideLoading();
         }
+
+        rewriteButton.style.display = 'none';
     });
 
     submitAnswersButton.addEventListener('click', async () => {
@@ -218,5 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             hideLoading();
         }
+
+        submitAnswersButton.style.display = 'none';
     });
+
 });

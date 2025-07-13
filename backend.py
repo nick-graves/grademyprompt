@@ -77,6 +77,24 @@ def refine_user_prompt():
         return jsonify({"refined_prompt": refined})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
+@app.route("/help")
+def help():
+    return render_template("help.html")
+
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+@app.route("/tos")
+def tos():
+    return render_template("tos.html")
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

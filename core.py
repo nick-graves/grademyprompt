@@ -1,4 +1,5 @@
 from interface import query_ollama
+from interface import query_gemini
 from pathlib import Path
 import re
 import json
@@ -62,7 +63,7 @@ def generate_questions(user_prompt: str, feedback: str) -> list:
         "user_input_here": user_prompt,
         "feedback": feedback
     })
-    response = query_ollama(filled)
+    response = query_gemini(filled)
     return [line.strip() for line in response.strip().split("\n") if re.match(r"^\s*\d+[\.\)]", line.strip())]
 
 def refine_prompt(original_prompt: str, feedback: str, qa_pairs: list, model: str) -> str:
@@ -74,7 +75,7 @@ def refine_prompt(original_prompt: str, feedback: str, qa_pairs: list, model: st
         "user_model_here": model,
         "questions_and_answers": qa_block
     })
-    return query_ollama(filled).strip()
+    return query_gemini(filled).strip()
 
 def evaluate_prompt(user_prompt: str, model: str = "llama3.1:8b") -> tuple:
     template = load_prompt_template("evaluate_prompt.txt")
@@ -83,7 +84,7 @@ def evaluate_prompt(user_prompt: str, model: str = "llama3.1:8b") -> tuple:
         "user_model_here": model
     })
 
-    response = query_ollama(filled)
+    response = query_gemini(filled)
 
     score, feedback, breakdown = extract_score_and_feedback(response)
 

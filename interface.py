@@ -1,5 +1,9 @@
 import subprocess
 import os
+from google import genai
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def query_ollama(prompt: str) -> str:
     print("[DEBUG] Inside query_ollama()")
@@ -20,3 +24,18 @@ def query_ollama(prompt: str) -> str:
         raise
 
     return result.stdout.decode()
+
+
+def query_gemini(prompt: str) -> str:
+    try:
+        client = genai.Client()
+        response = client.models.generate_content(
+            model="gemini-2.5-flash", contents=prompt
+        )
+
+        return response.text
+    
+    
+    except Exception as e:
+        print("[ERROR] Gemini API call failed:", str(e))
+        raise
