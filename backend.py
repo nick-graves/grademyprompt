@@ -20,18 +20,13 @@ def index():
 def evaluate():
     data = request.get_json()
     user_prompt = data.get("prompt")
-    user_selected_model = data.get("model", "gpt-4")
+    user_selected_model = data.get("model")
 
     if not user_prompt:
         return jsonify({"error": "Prompt is required."}), 400
 
     try:
-        local_model = "llama3:8b"
-
-        full_response, score, feedback, breakdown = evaluate_prompt(
-        user_prompt,
-        model=local_model
-    )
+        full_response, score, feedback, breakdown = evaluate_prompt(user_prompt, user_selected_model)
 
         return jsonify({
             "score": score,
@@ -67,7 +62,8 @@ def refine_user_prompt():
     prompt = data.get("prompt")
     feedback = data.get("feedback")
     qa_pairs = data.get("qa_pairs")
-    user_selected_model = data.get("model", "gpt-4")
+    user_selected_model = data.get("model")
+    print("USER SELECTED MODEL: ", user_selected_model)
 
     if not prompt or not feedback or not qa_pairs:
         return jsonify({"error": "Missing required fields"}), 400

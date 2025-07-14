@@ -19,7 +19,7 @@ GRADE: X
 """
 
 
-Then, give 2-3 sentences of constructive feedback on how to improve the prompt. CLEARLY LABLE THIS IN THE FOLLOWING FORMAT "FEEDBACK: X".
+Then, give 2-3 sentences of constructive feedback on how to improve the prompt. CLEARLY LABEL THIS IN THE FOLLOWING FORMAT "FEEDBACK: X".
 It is of the upmost importance that these two aspects of the (grade and feedback) are provided in the exact format specified above.
 
 

@@ -10,4 +10,9 @@ The user answered follow-up questions with:
 
 {{questions_and_answers}}
 
-Please rewrite the original prompt using these answers to make it more detailed, specific, and better aligned with the model "{{user_model_here}}". Return only the improved prompt.
+Please rewrite the original prompt using these answers to make it more detailed, specific, and better aligned with the model "{{user_model_here}}". 
+
+Please ensure the prompt you return begins by giving the AI a role. For example if the prompt is about programming "Act as senior level developer who has 20+ years of experience developing projects." 
+Additionally, the prompt should end with asking the AI if it has clarifying questions. For example, "Please ask any clarifying questions before beginning."
+
+Return only the improved prompt.

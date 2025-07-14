@@ -182,6 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     submitAnswersButton.addEventListener('click', async () => {
         const prompt = promptInput.value;
+        const model = modelSelect.value;
         const feedback = overallFeedbackText.textContent;
 
         const answers = [];
@@ -205,7 +206,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     prompt,
                     feedback,
-                    qa_pairs: answers
+                    qa_pairs: answers,
+                    model: model
                 })
             });
 

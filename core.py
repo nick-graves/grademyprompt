@@ -1,9 +1,6 @@
-from interface import query_ollama
 from interface import query_gemini
 from pathlib import Path
 import re
-import json
-from datetime import datetime
 
 RESULTS_FILE = "results.json"
 PROMPT_DIR = Path("prompts")
@@ -39,23 +36,6 @@ def extract_score_and_feedback(response: str):
         "alignment": alignment
     }
 
-def save_to_json(user_prompt, score, feedback, path=RESULTS_FILE):
-    entry = {
-        "timestamp": datetime.now().isoformat(),
-        "prompt": user_prompt,
-        "score": score,
-        "feedback": feedback
-    }
-
-    if Path(path).exists():
-        with open(path, "r+", encoding="utf-8") as f:
-            data = json.load(f)
-            data.append(entry)
-            f.seek(0)
-            json.dump(data, f, indent=2)
-    else:
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump([entry], f, indent=2)
 
 def generate_questions(user_prompt: str, feedback: str) -> list:
     template = load_prompt_template("generate_questions.txt")
