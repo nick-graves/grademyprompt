@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 def query_ollama(prompt: str) -> str:
     print("[DEBUG] Inside query_ollama()")
     print(f"[DEBUG] Prompt preview:\n{prompt[:300]}\n")
@@ -28,7 +29,7 @@ def query_ollama(prompt: str) -> str:
 
 def query_gemini(prompt: str) -> str:
     try:
-        client = genai.Client()
+        client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
         response = client.models.generate_content(
             model="gemini-2.5-flash", contents=prompt
         )

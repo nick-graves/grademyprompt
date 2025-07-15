@@ -5,3 +5,8 @@ enc
 /env
 /llm/unsloth_compiled_cache
 .env
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+deploy.zip
