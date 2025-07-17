@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showLoading("Evaluating prompt...");
 
         try {
-            const response = await fetch('http://prompt-insight-env.eba-mvaprr2m.us-west-2.elasticbeanstalk.com/api/evaluate', {
+            const response = await fetch('https://nth2vnutn2.execute-api.us-west-2.amazonaws.com/default/promptinsight/evaluate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt, model })
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showLoading("Generating clarifying questions...");
 
         try {
-            const response = await fetch('http://prompt-insight-env.eba-mvaprr2m.us-west-2.elasticbeanstalk.com/api/generate-questions', {
+            const response = await fetch('https://nth2vnutn2.execute-api.us-west-2.amazonaws.com/default/promptinsight/generate-questions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt, feedback })
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showLoading("Rewriting your prompt...");
 
         try {
-            const response = await fetch('http://prompt-insight-env.eba-mvaprr2m.us-west-2.elasticbeanstalk.com/api/refine-prompt', {
+            const response = await fetch('https://nth2vnutn2.execute-api.us-west-2.amazonaws.com/default/promptinsight/refine-prompt', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            refinedPromptOutput.textContent = data.refined_prompt;
+            refinedPromptOutput.textContent = data.refined;
             refinedPromptSection.classList.remove('hidden');
         } catch (err) {
             console.error('Failed to refine prompt:', err);
